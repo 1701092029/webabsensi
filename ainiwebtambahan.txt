@@ -1,0 +1,24 @@
+SELECT tkelas.nama_kelas as namkel , tjadwal.mata_kuliah as makul, tjadwal.ruang_kelas as ruangan, tjadwal.jam_masuk
+FROM tkelas,tdata_mahasiswa, tjadwal WHERE tkelas.id_kelas = tdata_mahasiswa.kelas AND tkelas.id_kelas = tjadwal.kelas AND tdata_mahasiswa.no_bp='1701092029'
+AND tjadwal.hari='selasa';
+
+
+
+untuk cari solusi yang ada makul lain dihari yang sama. logika yang perlu d tambahkan :
+
+
+tambahkan datatable yang isinye kelas dan matakuliah dalam bentuk combobox. 
+kemudian aktifkan kelas tersebut. baru difilter lagi di controller untuk dengan menambahkah
+matakuliah di dalam ifnya. supaya difiler berdasarkan waktu dan matakuliah yang sama
+
+
+
+SELECT absensi.* FROM tkelas,tdata_mahasiswa, tjadwal,absensi 
+WHERE absensi.no_bp=tdata_mahasiswa.no_bp AND tkelas.id_kelas = tdata_mahasiswa.kelas 
+AND tkelas.id_kelas = tjadwal.kelas  AND absensi.tanggal between '2020-11-01' and '2020-11-28'
+AND tkelas.id_kelas='4' AND absensi.matakuliah='database' group by nama;
+
+SELECT tdata_mahasiswa.nama, absensi.status_hadir FROM tkelas,tdata_mahasiswa, tjadwal,absensi 
+WHERE absensi.no_bp=tdata_mahasiswa.no_bp AND tkelas.id_kelas = tdata_mahasiswa.kelas 
+AND tkelas.id_kelas = tjadwal.kelas  AND absensi.tanggal between '2020-11-01' and '2020-11-28'
+AND tkelas.id_kelas='4' AND absensi.matakuliah='database' group by nama;

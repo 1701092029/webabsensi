@@ -1,0 +1,149 @@
+<?php
+defined('BASEPATH') or exit('No direct script access allowed');
+
+class Absensi extends CI_Controller
+{
+    public function __construct()
+    {
+        parent::__construct();
+        $this->load->library('form_validation'); //membuat sebuah validation
+        $this->load->helper(array('form', 'url'));
+        $this->load->model('absensi_model');
+        $this->load->model('mahasiswa_model');
+    }
+    public function index()
+    {
+
+        $data['title'] = 'Absensi';
+        $data['user'] =  $this->db->get_where('user', ['email' =>
+        $this->session->userdata('email')])->row_array();
+        // $data['mahasiswa'] = $this->mahasiswa_model->getAllMahasiswa();
+
+        // $this->form_validation->set_rules('nim', 'nim', 'required', [
+        //     'required' => 'nim belum diisi !!'
+        // ]);
+
+
+        // if ($this->form_validation->run() == false) {
+        // $data1 = $this->mahasiswa_model->getAllMahasiswa();
+
+        // foreach ($data1 as $data) {
+        //     // echo $mahasiswa['nama'];
+        //     var_dump($data['namkel']);
+        // }
+        // die;
+        // date_default_timezone_set('Asia/Jakarta');
+        // $date = new DateTime('now');
+
+        $this->load->view('templates/header', $data);
+        $this->load->view('templates/sidebar', $data);
+        $this->load->view('templates/topbar', $data);
+        $this->load->view('absensi/index', $data);
+        $this->load->view('templates/footer');
+        // } else {
+        //     $no_bp = $this->input->post('nim', true);
+        //     $hari = $this->input->post('hari', true);
+        //     $waktu = $this->input->post('waktu', true);
+
+        //     $dataabsen = $this->absensi_model->getabsensi($no_bp, $hari);
+        //     // var_dump($data);
+        //     // die;
+
+        //     foreach ($dataabsen as $dataabsen) {
+        //         if ($waktu < $dataabsen['jam_masuk'] && $waktu < $dataabsen['jam_keluar']) {
+        //             $nama = $dataabsen['nama'];
+        //             $status = 'masuk';
+        //             $ruang = $dataabsen['ruang_kelas'];
+        //             date_default_timezone_set('Asia/Jakarta');
+        //             $date = new DateTime('now');
+        //             $tanggal = $date->format('d-m-Y');
+        //         } else {
+        //             echo 'nim salah';
+        //         }
+        //     }
+
+        //     $data = array(
+        //         'no_bp' => $no_bp,
+        //         'nama' => $nama,
+        //         'status_hadir' => $status,
+        //         'ruang_kelas' => $ruang,
+        //         'tanggal' => $tanggal
+
+        //     );
+
+        //     $this->db->insert('tdata_mahasiswa', $data);
+        //     $this->session->set_flashdata('flash', ' Berhasil Ditambahkan');
+        //     redirect('mahasiswa/index');
+        // }
+    }
+
+    public function absensi()
+    {
+        $no_bp = $this->input->post('nim', true);
+        $hari = $this->input->post('hari', true);
+        $waktu = $this->input->post('waktu', true);
+
+        $dataabsen = $this->absensi_model->getabsensi($no_bp, $hari);
+
+
+
+        //cekapakah sudah isi absen masuk atau suda
+        date_default_timezone_set('Asia/Jakarta');
+        $date = new DateTime('now');
+        $cektgl = $date->format('yy-m-d');
+        $datacekkeluar = $this->absensi_model->getcekkeluar($no_bp, $cektgl);
+        
+
+        if ($dataabsen == null) {
+            // echo 'data kosong';
+            redirect('absensi');
+        } else {
+
+            foreach ($dataabsen as $dataabsen) {
+                // var_dump($dataabsen['jammsk']);
+                // die;
+                if ($waktu >= $dataabsen['jammsk']) {
+                    // echo 'telat';
+                    redirect('absensi');
+                } else {
+
+                    $nama = $dataabsen['nama'];
+
+                    $status = 'masuk';
+                    $ruang = $dataabsen['ruangan'];
+                    date_default_timezone_set('Asia/Jakarta');
+                    $date = new DateTime('now');
+                    $tanggal = $date->format('yy-m-d');
+                    $makul = $dataabsen['makul'];
+                }
+
+                // $nama = $dataabsen['nama'];
+                // $status = 'masuk';
+                // $ruang = $dataabsen['ruangan'];
+                // date_default_timezone_set('Asia/Jakarta');
+                // $date = new DateTime('now');
+                // $tanggal = $date->format('d-m-Y');
+                // $makul = $dataabsen['makul'];
+                // var_dump($dataabsen['makul']);
+                // die;
+            }
+
+
+
+            // echo 'data benar';
+        }
+
+        $data = array(
+            'no_bp' => $no_bp,
+            'nama' => $nama,
+            'status_hadir' => $status,
+            'ruang_kelas' => $ruang,
+            'tanggal' => $tanggal,
+            'matakuliah' => $makul
+        );
+
+        $this->db->insert('absensi', $data);
+        $this->session->set_flashdata('flash', ' Berhasil Ditambahkan');
+        redirect('mahasiswa/index');
+    }
+}
